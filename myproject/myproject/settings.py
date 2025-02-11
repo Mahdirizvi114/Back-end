@@ -26,8 +26,6 @@ SECRET_KEY = 'django-insecure-n34@7)-pa=++@5gh(&j%@hlv5o%-7)2v^0i^n#psl7!m5c-mus
 DEBUG = True
 CORS_ORIGIN_ALLOW_ALL = True
 
-OPENAI_API_KEY = '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'
-
 
 ALLOWED_HOSTS = []
 

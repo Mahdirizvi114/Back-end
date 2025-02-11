@@ -6,14 +6,15 @@ from .serializers import UserSerializer
 import google.generativeai as genai
 import json
 import re
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
+genai.configure(api_key=os.getenv("GENAI_API_KEY"))
 
 
-# Configure Google Generative AI with API Key
-genai.configure(api_key="AIzaSyAYspxEfFmhq0MT8lKeri7oF0Gmuxv27CU")
-
-# User Registration API
 @api_view(['POST'])
 def register_user(request):
     """
@@ -32,10 +33,6 @@ def register_user(request):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
-
 @api_view(['POST'])
 def generate_mcqs(request):
     """
@@ -45,7 +42,6 @@ def generate_mcqs(request):
     difficulty = request.data.get("difficulty", "").strip()
     num_questions = request.data.get("num_questions", 5)
 
-    
     if not subject:
         return Response({"error": "Subject is required"}, status=400)
     if difficulty.lower() not in ["easy", "medium", "hard"]:
@@ -55,7 +51,6 @@ def generate_mcqs(request):
 
     num_questions = int(num_questions)  
 
-    
     prompt = f"""
     Generate {num_questions} multiple-choice questions on {subject} with a {difficulty} difficulty level.
     Each question should have 4 answer choices (A, B, C, D), and the correct answer should be clearly indicated.
@@ -78,13 +73,11 @@ def generate_mcqs(request):
     }}
     """
 
-    
     model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content(prompt)
 
     raw_response = response.text.strip()
 
-    
     match = re.search(r"\{.*\}", raw_response, re.DOTALL)
     if not match:
         return Response({"error": "Invalid AI response format"}, status=500)
@@ -96,5 +89,3 @@ def generate_mcqs(request):
         return Response(mcqs_json)
     except json.JSONDecodeError:
         return Response({"error": "Failed to parse AI response into JSON"}, status=500)
-
-
